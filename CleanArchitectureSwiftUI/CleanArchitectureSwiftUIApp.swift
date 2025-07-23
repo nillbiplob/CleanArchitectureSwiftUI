@@ -9,9 +9,29 @@ import SwiftUI
 
 @main
 struct CleanArchitectureSwiftUIApp: App {
+    @State private var isLoaded = false
+    @State private var selectedUserId: Int?
+
+    let useCase = GetUsersUseCase(repo: UserRepositoryImpl())
+    
+    let vm = UserListViewModel()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationView {
+                if !isLoaded {
+                    SplashView(isLoaded: $isLoaded, useCase: useCase)
+                } else if let id = selectedUserId {
+                    UserDetailView(userId: id)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("Back") { selectedUserId = nil }
+                            }
+                        }
+                } else {
+                    UserListView(vm: vm, selectedUserId: $selectedUserId)
+                }
+            }
         }
     }
 }
